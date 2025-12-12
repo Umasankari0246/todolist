@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood Productivity Tracker - Page 2</title>
+<style>
+  body {font-family: Arial,sans-serif; margin:0; padding:0; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding-top:30px; transition: background 0.5s;}
+  .container {background:white; padding:20px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.1); width:90%; max-width:400px;}
+  h1{text-align:center;color:#6c5ce7;}
+  ul {list-style:none; padding:0; margin:0;}
+  li {padding:8px 10px; background:#f1f1f1; margin:6px 0; border-radius:6px; display:flex; justify-content:space-between; align-items:center;}
+  .completed {text-decoration: line-through; color:#666;}
+  button {padding:6px 10px; border-radius:6px; border:none; cursor:pointer;}
+  button.back {background:#6c5ce7; color:white; width:100%; margin-top:10px;}
+  .progress-container {background:#ddd; border-radius:8px; margin:10px 0; height:18px;}
+  .progress-bar {height:18px; border-radius:8px; width:0%; background:#6c5ce7; transition: width 0.3s;}
+  .emoji {text-align:center; font-size:28px; margin:10px 0;}
+</style>
+</head>
+<body id="body">
+<div class="container">
+  <h1>Today's Tasks</h1>
+
+  <div class="emoji" id="moodEmoji"></div>
+
+  <ul id="taskList"></ul>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <button class="back" onclick="goBack()">← Back</button>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+let mood = localStorage.getItem('mood') || '';
+const taskListEl = document.getElementById('taskList');
+const progressBar = document.getElementById('progressBar');
+const moodEmoji = document.getElementById('moodEmoji');
+const body = document.getElementById('body');
+
+function updateMood(){
+  if(mood==='happy'){ moodEmoji.textContent='😄'; body.style.background='#ffeaa7'; }
+  else if(mood==='normal'){ moodEmoji.textContent='😐'; body.style.background='#dfe6e9'; }
+  else if(mood==='stressed'){ moodEmoji.textContent='😓'; body.style.background='#fab1a0'; }
+  else { moodEmoji.textContent=''; body.style.background='#f4f7fb'; }
+}
+
+function renderTasks(){
+  taskListEl.innerHTML='';
+  tasks.forEach((t,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<input type="checkbox" ${t.done?'checked':''} onchange="toggleDone(${i})"> 
+                    <span class="${t.done?'completed':''}">${t.text} [${t.prio}]</span>`;
+    taskListEl.appendChild(li);
+  });
+  updateProgress();
+}
+
+function toggleDone(i){
+  tasks[i].done = !tasks[i].done;
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  renderTasks();
+}
+
+function updateProgress(){
+  const doneCount = tasks.filter(t=>t.done).length;
+  const total = tasks.length;
+  const percent = total ? (doneCount/total)*100 : 0;
+  progressBar.style.width = percent+'%';
+}
+
+function goBack(){ window.location.href='page1.html'; }
+
+updateMood();
+renderTasks();
+</script>
+</body>
+</html>

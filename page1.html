@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood Productivity Tracker - Page 1</title>
+<style>
+  body {font-family: Arial, sans-serif; margin:0; padding:0; display:flex; justify-content:center; align-items:center; height:100vh; transition: background 0.5s;}
+  .container {background:white; padding:20px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.1); width:90%; max-width:400px;}
+  h1{text-align:center;color:#6c5ce7;}
+  .mood-buttons {display:flex; justify-content:space-around; margin:10px 0;}
+  .mood-buttons button {font-size:24px; padding:10px 14px; border-radius:8px; border:none; cursor:pointer; transition:0.2s;}
+  .mood-buttons button:hover{transform:scale(1.1);}
+  input, select, button.add-task {width:100%; padding:10px; margin:8px 0; border-radius:8px; border:1px solid #ccc; font-size:14px;}
+  button.start-day {background:#6c5ce7; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; width:100%; margin-top:10px;}
+  ul {list-style:none; padding:0; margin:0; max-height:200px; overflow-y:auto;}
+  li {padding:8px 10px; background:#f1f1f1; margin:6px 0; border-radius:6px; display:flex; justify-content:space-between; align-items:center;}
+  button.remove {border:none; background:red; color:white; border-radius:6px; padding:4px 7px; cursor:pointer;}
+</style>
+</head>
+<body id="body">
+<div class="container">
+  <h1>Set Your Mood & Tasks</h1>
+
+  <p>Select your mood:</p>
+  <div class="mood-buttons">
+    <button onclick="setMood('happy')">😄</button>
+    <button onclick="setMood('normal')">😐</button>
+    <button onclick="setMood('stressed')">😓</button>
+  </div>
+
+  <p>Add tasks:</p>
+  <input type="text" id="taskInput" placeholder="Enter task">
+  <select id="prioSelect">
+    <option value="low">Low</option>
+    <option value="med" selected>Medium</option>
+    <option value="high">High</option>
+  </select>
+  <button class="add-task" onclick="addTask()">Add Task</button>
+
+  <ul id="taskList"></ul>
+
+  <button class="start-day" onclick="startDay()">Start Day</button>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+let mood = localStorage.getItem('mood') || '';
+
+const taskInput = document.getElementById('taskInput');
+const prioSelect = document.getElementById('prioSelect');
+const taskListEl = document.getElementById('taskList');
+const body = document.getElementById('body');
+
+function setMood(selected){
+  mood = selected;
+  localStorage.setItem('mood', mood);
+  updateBackground();
+}
+
+function updateBackground(){
+  if(mood==='happy') body.style.background='#ffeaa7';
+  else if(mood==='normal') body.style.background='#dfe6e9';
+  else if(mood==='stressed') body.style.background='#fab1a0';
+  else body.style.background='#f4f7fb';
+}
+
+function renderTasks(){
+  taskListEl.innerHTML='';
+  tasks.forEach((t,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `${t.text} <span>[${t.prio}]</span> <button class="remove" onclick="removeTask(${i})">X</button>`;
+    taskListEl.appendChild(li);
+  });
+}
+
+function addTask(){
+  const text = taskInput.value.trim();
+  if(!text) return;
+  const prio = prioSelect.value;
+  tasks.push({text, prio, done:false});
+  taskInput.value='';
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  renderTasks();
+}
+
+function removeTask(i){
+  tasks.splice(i,1);
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  renderTasks();
+}
+
+function startDay(){
+  if(!mood) { alert('Select your mood!'); return; }
+  if(tasks.length===0) { alert('Add at least one task!'); return; }
+  window.location.href='page2.html';
+}
+
+updateBackground();
+renderTasks();
+</script>
+</body>
+</html>
